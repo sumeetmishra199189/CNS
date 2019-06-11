@@ -45,7 +45,12 @@ from catboost import CatBoostClassifier, Pool, cv
 
 mortality_c=pd.read_csv('/Users/sumeetmishra/Desktop/CNS/CDCMortality/Data/NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv')
 
-mortality_c.head(15)
+#mortality_c.head(15)
+
+plt.style.use('seaborn-whitegrid')
+plt.figure(figsize=(20,10)) 
+sns.countplot(y="State", data=mortality_c)
+sns.barplot(x="Population",y="FIPS State", data=mortality_c)
 
 
 
