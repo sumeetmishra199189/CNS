@@ -1,0 +1,84 @@
+---
+title: "CNS_Poster"
+author: "Sumeet Mishra"
+date: "6/12/2019"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+#library(ggpubr)
+m_c=read.csv('NCHS_-_Drug_Poisoning_Mortality_by_County__United_States.csv', header = TRUE)
+m_s=read.csv('NCHS_-_Drug_Poisoning_Mortality_by_State__United_States.csv', header = TRUE)
+#View(m_c)
+#View(m_s)
+colnames(m_c)[colnames(m_c)=="Estimated.Age.adjusted.Death.Rate..16.Categories..in.ranges."] <- "Estimated_Age_Adjusted_Death_Rate"
+# Age-adjusted death rate = (total expected deaths/standard population) X 100,000
+
+```
+
+```{r}
+#library(tidyr)
+#m_c=separate(data = m_c, col = County, into = c("County", "Short_State"), sep = ",")
+#m_c=separate(data = m_c, col = County, into = c("County", "rep"), sep = " ")
+#drops <- ('rep')
+#m_c=m_c[ , !(names(m_c) %in% drops)]
+```
+
+```{r}
+View(m_c)
+```
+
+```{r}
+m_c$Population <- as.numeric(gsub(",", "", as.character(m_c$Population)))
+
+str(m_c)
+```
+
+```{r}
+#ggplot(m_c,aes(x=FIPS,y=Population))+geom_point()
+#ggplot(m_c,aes(x=Estimated_Age_Adjusted _Death_Rate))+geom_histogram()
+```
+
+```{r}
+m_c$Estimated_Age_Adjusted_Death_Rate<-as.character(m_c$Estimated_Age_Adjusted_Death_Rate)
+#m_c$Estimated_Age_Adjusted _Death_Rate <- str_replace(m_c$Estimated_Age_Adjusted _Death_Rate,'<','0-')
+#m_c$Estimated_Age_Adjusted _Death_Rate <- str_replace(m_c$Estimated_Age_Adjusted _Death_Rate,'+','-30')
+#m_c$Estimated_Age_Adjusted_Death_Rate[m_c$Estimated_Age_Adjusted_Death_Rate == '<2'] <- '0-2'
+#m_c$Estimated_Age_Adjusted_Death_Rate[m_c$Estimated_Age_Adjusted_Death_Rate == '30+'] <- '30-30'
+m_c$Estimated_Age_Adjusted_Death_Rate[which(m_c$Estimated_Age_Adjusted_Death_Rate=='<2')] <- "0-2"
+m_c$Estimated_Age_Adjusted_Death_Rate[which(m_c$Estimated_Age_Adjusted_Death_Rate=='30+')] <- "30-30"
+```
+
+
+```{r}
+m_c=separate(data = m_c, col =Estimated_Age_Adjusted_Death_Rate , into = c("LL_Estimated_Age_Adjusted_Death_Rate", "HL_Estimated_Age_Adjusted_Death_Rate"), sep = "-")
+m_c$LL_Estimated_Age_Adjusted_Death_Rate<-as.numeric(m_c$LL_Estimated_Age_Adjusted_Death_Rate)
+m_c$HL_Estimated_Age_Adjusted_Death_Rate<-as.numeric(m_c$HL_Estimated_Age_Adjusted_Death_Rate)
+m_c$average_Estimated_Age_Adjusted_Death_Rate=(m_c$LL_Estimated_Age_Adjusted_Death_Rate+m_c$HL_Estimated_Age_Adjusted_Death_Rate)/2
+```
+
+
+```{r}
+ggplot(m_c,aes(x=average_Estimated_Age_Adjusted_Death_Rate))+geom_histogram()
+
+```
+
+```{r}
+m_c1<-filter(m_c, Year>=2010)
+View(m_c1)
+```
+
+```{r fig.width=50, fig.height=10}
+#ggplot(m_c1,aes(y=County,x=Year,color=average_Estimated_Age_Adjusted_Death_Rate))+geom_point()+facet_wrap(m_c1$State)
+```
+
+```{r}
+#View(m_c)
+library(writexl)
+write_xlsx(m_c1, path="/Users/sumeetmishra/Desktop/m_c1.xlsx",col_names = TRUE,format_headers = TRUE)
+```
+
+
